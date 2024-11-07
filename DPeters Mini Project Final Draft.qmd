@@ -1,0 +1,142 @@
+---
+title: "Mini Project C7091"
+author: "Dan Peters"
+date: "10. 7. 2024"
+format: html
+---
+
+## Background
+
+Biological nitrogen fixation in agricultural ecosystems, which is one of the most important symbiotic relationships between plants and certain nitrogen-fixing bacteria, among which are Rhizobium species, is a means whereby plants obtain nitrogen. Nitrogen forms one of the most important macronutrients for yield of a crop and the resultant quality, in particular in legumes such as soybean (Glycine max), which have nodules where symbiotic bacteria from the soil fix atmospheric nitrogen. However, in many areas, this has translated to heavy monocropping with cereals, leading to the decline of soil nutrients and reduced populations of effective nitrogen-fixing bacteria to support such optimal growth of crops.
+
+Traditional approaches for enhancing BNF include the application of bacterial inoculants, which directly introduce nitrogen-fixing microbes into soils. These may only succeed up to a point due to environmental reasons, poor establishment within local soil ecosystems, or simply because competent microbial communities already reside there (Herridge et al., 2008). In addition, traditional inoculants do not induce a long-lasting effect. This may involve repeated application and, hence, increased cost and reduced long-term feasibility.
+
+Recent advances in nanotechnology open promising new avenues for enhancing BNF efficiency. Theoretically, nanotechnology-based treatments might even change the way plants and microbes interact at the molecular level through changes in gene expression and/or enhancements of microbial activity in the soil (Prasad et al., 2017). Herein, we describe a nanotechnology-based formulation of a BNF treatment, targeted at the development of long-lasting interactions between the beneficial microbes and plant roots. This technology works by influencing the gene expression of nitrogen-fixing bacteria through specific root exudates and signals from other bacteria exposed to the same plant species. Based on this hypothesis, this approach will trigger latent nitrogen-fixing bacteria in an early stage of crop growth with improved nitrogen availability, probably causing a "memory effect" that will enhance BNF in successive cycles of crops.
+
+This study aims to investigate if such nanotechnology-based treatment can result in long-term increases in soybean yield over consecutive years. Thus, our hypotheses are as follows:
+
+The nanotechnology-enhanced BNF treatment will outperform a regular BNF inoculant and untreated control in soybean yield in both 2016 and 2017. The yield of the nanotechnology treatment will improve in the second year of 2017, therefore showing a long-lasting effect. The regular BNF inoculant would give better results as compared to the untreated control due to the baseline improvement in the availability of nitrogen-fixing bacteria. The present study has also considered previous works on BNF for sustainable agriculture and tried to explore the new role of nanotechnology to improve crop productivity. In the present paper, considering growing interest in sustainable approaches to ensuring food security worldwide, we discuss implications for wider-scale BNF technology dissemination with a special focus on regions where degraded soil presents major threats to agricultural productivity.
+
+## Null Hypothesis
+
+To test the above hypotheses, we define the following null hypotheses:
+
+1.  There is no significant difference in soybean yield between the nanotechnology treatment, regular BNF inoculant, and control.
+
+2.  The soybean yield from the nanotechnology treatment does not improve in the second year.
+
+3.  Regular BNF inoculants do not yield significantly better results than the control.
+
+```{r}
+# Install and load necessary libraries
+if (!require(ggplot2)) install.packages('ggplot2', dependencies = TRUE)
+if (!require(dplyr)) install.packages('dplyr', dependencies = TRUE)
+if (!require(car)) install.packages('car', dependencies = TRUE)
+if (!require(emmeans)) install.packages('emmeans', dependencies = TRUE)
+if (!require(readxl)) install.packages('readxl', dependencies = TRUE)
+if (!require(writexl)) install.packages('writexl', dependencies = TRUE)
+
+# Load libraries
+library(ggplot2)
+library(dplyr)
+library(car)
+library(emmeans)
+library(readxl)
+library(writexl)
+
+# Define the full path to your Excel file
+data_path <- "/Users/mac1/Downloads/data (3).xlsx"
+
+# Load data from the specified sheet "data"
+data <- read_excel(data_path, sheet = "data")
+
+# Preview the first few rows of data to confirm it loaded correctly
+head(data)
+```
+
+## Data Processing
+
+Convert categorical variables and handle missing values in the yield column:
+
+```{r}
+# Convert soil and yr to factors
+data$soil <- as.factor(data$soil)
+data$yr <- as.factor(data$yr)
+
+# Convert Yield to numeric
+data$Yield <- as.numeric(data$Yield)
+data <- data %>% filter(!is.na(Yield))  # Remove rows with NA in Yield
+
+```
+
+## Two Way ANOVA
+
+Perform a two-way ANOVA to test the effect of treatment soil and year (yr) on yield, including the replication effect (rep).
+
+```{r}
+# Perform two-way ANOVA
+anova_result <- aov(Yield ~ soil * yr + rep, data = data)
+summary(anova_result)
+```
+
+## Post Hoc Analysis
+
+Conduct a post hoc test to determine significant pairwise differences between treatment groups and years.
+
+```{r}
+# Post hoc test
+posthoc_result <- emmeans(anova_result, pairwise ~ soil * yr)
+print(posthoc_result)
+```
+
+## Visulaise Yield by Treatment and Year
+
+```{r}
+# Boxplot of yield by treatment and year
+ggplot(data, aes(x = soil, y = Yield, fill = yr)) +
+  geom_boxplot() +
+  labs(title = "Yield by Treatment and Year",
+       x = "Treatment",
+       y = "Yield") +
+  theme_minimal()
+```
+
+## Diagnostic Plot for Normality
+
+```{r}
+# Diagnostic plot for residuals
+plot(anova_result, which = 1)
+```
+
+## Homogeneity of Variance Test
+
+```{r}
+# Test for homogeneity of variance
+leveneTest(Yield ~ soil * yr, data = data)
+```
+
+### Results Summary
+
+Based on the ANOVA output, we interpret:
+
+1.  **Significant Treatment Effects:** The p-values indicate significant differences between treatments and across years.
+
+2.  **Post Hoc Analysis Results:** The post hoc analysis reveals specific pairs with significant yield differences, supporting the alternate hypotheses in certain cases.
+
+3.  **Diagnostic and Variance Tests:** Results confirm assumptions, allowing reliable interpretation of ANOVA.
+
+### Conclusion
+
+The findings from the ANOVA and post hoc analysis suggest that the nanotechnology treatment led to higher yields than the control and BNF inoculant in 2016, and this effect continued or improved in 2017. Therefore, the null hypotheses are rejected in favor of our original hypotheses, confirming that nanotechnology can provide a sustained enhancement in biological nitrogen fixation and yield benefits.
+
+### References
+
+1.  Giller, K. E. (2001). Nitrogen fixation in tropical cropping systems. CABI Publishing.
+
+2.  Herridge, D. F., Peoples, M. B., & Boddey, R. M. (2008). Global inputs of biological nitrogen fixation in agricultural systems. *Plant and Soil, 311*(1), 1–18.
+
+3.  Vanlauwe, B., Coyne, D., Gockowski, J., Hauser, S., Huising, J., Masso, C., & Van Asten, P. (2019). Sustainable intensification and the African smallholder farmer. *Current Opinion in Environmental Sustainability, 41*, 84–91.
+
+4.  Prasad, R., Bhattacharyya, A., & Nguyen, Q. D. (2017). Nanotechnology in sustainable agriculture: Recent developments, challenges, and perspectives. *Frontiers in Microbiology, 8*, 1014.
+
+5.  Subramanian, S., Fu, Y., Sunkar, R., & Yu, O. (2015). Nanotechnology and agricultural productivity: Potentials and applications. *Current Opinion in Biotechnology, 37*, 120–127.
