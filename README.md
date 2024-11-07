@@ -3,6 +3,8 @@
 **Author**: Dan Peters  
 **Published**: October 7, 2024
 
+## Rendered version https://rpubs.com/DanJPeters/1242407
+
 ## Background
 
 Biological nitrogen fixation (BNF) is a critical process in agricultural ecosystems that allows certain plants, particularly legumes like soybeans (*Glycine max*), to obtain nitrogen through symbiotic relationships with nitrogen-fixing bacteria, such as *Rhizobium* species. Nitrogen is an essential macronutrient for crop yield and quality. However, intensive monocropping with cereals has led to a decline in soil nutrients and a reduction in effective nitrogen-fixing bacteria populations.
